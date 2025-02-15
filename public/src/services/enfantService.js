@@ -9,14 +9,13 @@ const garconImages = [
     "/images/avatars/f16.png"
   ];
   
-  const filleImages = [
+const filleImages = [
     "/images/avatars/girl1.jpeg",
     "/images/avatars/girl2.jpeg",
     "/images/avatars/girl3.jpeg",
     "/images/avatars/girl4.jpeg"
   ];
   
-
 exports.createEnfant = async (authUser, data) => {
   try {
     const parentId = authUser.role_name === "enfant" ? authUser.organ_id : authUser.id;
@@ -25,18 +24,18 @@ exports.createEnfant = async (authUser, data) => {
     const childCount = await Enfant.count({ where: { parent_id: parentId } });
 
     if (childCount >= 4) {
-      throw new Error("Vous avez atteint le nombre maximum d'enfants autorisés (4).");
+      return { error: "Vous avez atteint le nombre maximum d'enfants autorisés (4)." };
     }
 
     // Vérifier si le niveau scolaire existe
     const schoolLevel = await SchoolLevel.findByPk(data.level_id);
     if (!schoolLevel) {
-      throw new Error("Le niveau scolaire spécifié n'existe pas.");
+      return { error: "Le niveau scolaire spécifié n'existe pas." };
     }
 
     // Sélection d'un avatar aléatoire en fonction du sexe
     if (!["Garçon", "Fille"].includes(data.sexe)) {
-      throw new Error("Le sexe doit être 'Garçon' ou 'Fille'.");
+      return { error: "Le sexe doit être 'Garçon' ou 'Fille'." };
     }    
     const imagePool = data.sexe === "Garçon" ? garconImages : filleImages;
     const avatar = imagePool[Math.floor(Math.random() * imagePool.length)];
@@ -59,7 +58,7 @@ exports.createEnfant = async (authUser, data) => {
       
     // 📌 Étape 2 : Créer l'enfant dans `enfant` et l'associer à `user_id`
     const newEnfant = await Enfant.create({
-        Nom: data.om,
+        Nom: data.Nom,
         prenom: data.prenom || "",  // Assurez-vous que prenom existe ou est vide
         sexe: data.sexe,
         level_id: data.level_id,
@@ -71,7 +70,7 @@ exports.createEnfant = async (authUser, data) => {
 
     return { user: newUser, enfant: newEnfant };
   } catch (error) {
-    throw new Error(error.message || "Une erreur est survenue lors de la création de l'enfant.");
+    return { error: error.message || "Une erreur est survenue lors de la création de l'enfant." };
   }
 };
 

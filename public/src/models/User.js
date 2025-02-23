@@ -21,7 +21,8 @@ const User = sequelize.define(
     },
     organ_id: {
       type: DataTypes.INTEGER,
-    },
+      allowNull: true, // 🔥 A child must always have a parent
+  },  
     mobile: {
       type: DataTypes.STRING(32),
     },

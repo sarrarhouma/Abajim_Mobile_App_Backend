@@ -70,3 +70,52 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur.', error });
     }
 };
+//switching accounts between the childrens 
+// ✅ Ensure SECRET_KEY is properly defined
+const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key"; // ✅ Fix this!
+
+exports.switchChildSession = async (req, res) => {
+  try {
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found in request" });
+    }
+
+    const { childId } = req.body;
+    const parentId = req.user.id;
+
+    // console.log(`📌 Received childId: ${childId}`);
+    // console.log(`👨‍👧 Parent ID from token: ${parentId}`);
+
+    if (!childId) {
+      return res.status(400).json({ error: "childId is required" });
+    }
+
+    // ✅ Find the child and verify parent-child relationship
+    const child = await User.findOne({
+      where: { id: childId, role_id: 8, organ_id: parentId },
+      attributes: ["id", "full_name", "role_id", "level_id", "avatar"],
+    });
+
+    if (!child) {
+      return res.status(403).json({ error: "Unauthorized: This child does not belong to you." });
+    }
+
+    console.log("🟢 Found child:", child.dataValues);
+
+    // ✅ Generate a new token for the child session
+    const token = jwt.sign(
+      { id: child.id, role_id: child.role_id },
+      SECRET_KEY,  // ✅ Use the correct variable
+      { expiresIn: "24h" }
+    );
+
+   // console.log(`✅ Token generated for child ${child.id}: ${token}`);
+
+    res.status(200).json({ token, child: child.dataValues });
+
+  } catch (error) {
+    console.error("❌ Error switching child session:", error.message);
+    res.status(500).json({ error: "Server error while switching child" });
+  }
+};

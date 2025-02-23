@@ -8,23 +8,73 @@ const SchoolLevel = require("../models/SchoolLevel");
 
 //Register new user
 
+// const register = async (req, res) => {
+//   console.log('Request body:', req.body); // Log request body for debugging
+//   try {
+//     const { full_name, mobile, password, role_id } = req.body;
+//     if (!full_name || !mobile || !password || !role_id) {
+//       console.log('Missing required fields:', req.body);
+//       return res.status(400).json({ error: 'All fields are required.' });
+//     }
+
+//     const user = await userService.registerUser(req.body);
+//     res.status(201).json({ message: 'User registered successfully.', user });
+//   } catch (error) {
+//     console.error('Error registering user:', error.message);
+//     res.status(500).json({ error: 'An error occurred while registering the user.' });
+//   }
+// };
 const register = async (req, res) => {
-  console.log('Request body:', req.body); // Log request body for debugging
+  console.log("📨 Received Register Request:", req.body); // Log request for debugging
+
   try {
     const { full_name, mobile, password, role_id } = req.body;
+
+    // ✅ Vérification des champs obligatoires
     if (!full_name || !mobile || !password || !role_id) {
-      console.log('Missing required fields:', req.body);
-      return res.status(400).json({ error: 'All fields are required.' });
+    //  console.log("⚠️ Missing required fields:", req.body);
+      return res.status(400).json({ error: "All fields are required." });
     }
 
-    const user = await userService.registerUser(req.body);
-    res.status(201).json({ message: 'User registered successfully.', user });
+    // ✅ Vérifier si l'utilisateur existe déjà
+    const existingUser = await User.findOne({ where: { mobile } });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists with this mobile number." });
+    }
+
+    // 🔐 Hachage du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ Création de l'utilisateur via userService
+    const newUser = await userService.registerUser({
+      full_name,
+      mobile,
+      password: hashedPassword,
+      role_id,
+    });
+
+    // 🔐 Génération du Token JWT
+    const token = jwt.sign(
+      { id: newUser.id, role_id: newUser.role_id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // Expiration du token après 7 jours
+    );
+
+  //  console.log("✅ User registered successfully:", newUser);
+    console.log("✅ User registered successfully:", token);
+
+    // 📤 Retourner l'utilisateur avec le token
+    return res.status(201).json({
+      message: "User registered successfully.",
+      user: newUser,
+      access_token: token, // ✅ Retourner le token immédiatement
+    });
+
   } catch (error) {
-    console.error('Error registering user:', error.message);
-    res.status(500).json({ error: 'An error occurred while registering the user.' });
+    console.error("❌ Error registering user:", error.message);
+    return res.status(500).json({ error: "An error occurred while registering the user." });
   }
 };
-
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
@@ -98,20 +148,26 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 // User login
 const login = async (req, res) => {
   try {
-    // Simple validation of required fields
     const { mobile, password } = req.body;
+    
+    console.log("🟢 Requête reçue pour LOGIN :", { mobile, password });
+
     if (!mobile || !password) {
-      return res.status(400).json({ error: 'Mobile and password are required.' });
+      console.log("🚨 Champs requis manquants !");
+      return res.status(400).json({ error: "Mobile et mot de passe sont requis." });
     }
 
-    // Call service to log in the user
-    const result = await userService.loginUser(mobile, password); // FIXED: Used mobile instead of mobile
+    const result = await userService.loginUser(mobile, password);
+
+    console.log("✅ Utilisateur connecté avec succès :", result);
     res.status(200).json(result);
+
   } catch (error) {
-    console.error('Error logging in user:', error.message);
-    res.status(500).json({ error: 'An error occurred while logging in the user.' });
+    console.error("❌ Erreur lors de la connexion :", error);
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 module.exports = {
   register,

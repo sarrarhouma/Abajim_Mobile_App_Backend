@@ -12,10 +12,10 @@ exports.addEnfant = async (req, res) => {
       return res.status(400).json({ error: "Tous les champs sont requis." });
     }
 
-    // Vérification si le parent existe
-    const parent = await User.findByPk(parentId);
-    if (!parent) {
-      return res.status(404).json({ error: "Parent introuvable." });
+    // Vérifier le nombre d'enfants déjà créés
+    const childCount = await Enfant.count({ where: { parent_id: parentId } });
+    if (childCount >= 4) {
+      return res.status(400).json({ error: "Vous avez atteint le nombre maximum d'enfants autorisés (4)." });
     }
 
     const newEnfant = await Enfant.create({

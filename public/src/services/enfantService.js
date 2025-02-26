@@ -78,7 +78,7 @@ exports.createChild = async (parent, data) => {
             language: "AR"
         });
 
-        console.log(`✅ Child Created:`, newChild.dataValues);
+      //  console.log(`✅ Child Created:`, newChild.dataValues);
         return { user: newChild };
     } catch (error) {
         console.error("❌ Error creating child:", error.message);
@@ -99,7 +99,7 @@ exports.updateChild = async (parentId, childId, data) => {
         // ✅ Update child data
         await enfant.update({ full_name: data.nom, level_id: data.level_id });
 
-        console.log(`✅ Child Updated:`, enfant.dataValues);
+       // console.log(`✅ Child Updated:`, enfant.dataValues);
         return enfant;
     } catch (error) {
         console.error("❌ Error updating child:", error.message);
@@ -117,7 +117,7 @@ exports.deleteChild = async (parentId, childId) => {
         }
 
         await enfant.destroy();
-        console.log(`✅ Child Deleted: ID ${childId}`);
+       // console.log(`✅ Child Deleted: ID ${childId}`);
         return { message: "Enfant supprimé avec succès." };
     } catch (error) {
         console.error("❌ Error deleting child:", error.message);

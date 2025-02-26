@@ -101,8 +101,6 @@ exports.switchChildSession = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized: This child does not belong to you." });
     }
 
-    console.log("🟢 Found child:", child.dataValues);
-
     // ✅ Generate a new token for the child session
     const token = jwt.sign(
       { id: child.id, role_id: child.role_id },

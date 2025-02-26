@@ -23,9 +23,24 @@ const createDocument = async (data) => {
     "pathenfant": data["pathenfant"],
   });
 };
+// 🆕 Function to generate the correction video URL
+const getCorrectionVideoUrl = async (manuelId, icon, page) => {
+  try {
+    if (!manuelId || !icon || !page) {
+      throw new Error("manuel_id, icon, and page are required.");
+    }
 
+    // Construct the correction video URL dynamically
+    const correctionVideoUrl = `https://www.abajim.com/panel/scolaire/${manuelId}?icon=${icon}&page=${page}`;
+    return correctionVideoUrl;
+  } catch (error) {
+    console.error("❌ Error fetching correction video URL:", error.message);
+    throw error;
+  }
+};
 module.exports = {
   getAllDocuments,
   getDocumentsByManuel,
   createDocument,
+  getCorrectionVideoUrl,
 };

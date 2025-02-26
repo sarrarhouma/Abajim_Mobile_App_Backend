@@ -63,7 +63,6 @@ const loginUser = async (mobile, password) => {
 
 
     // 📌 Étape 2: Vérifier si le mot de passe est correct
-    console.log("🔄 Comparaison du mot de passe...");
     console.log("📌 Mot de passe entré:", password);
 
 
@@ -73,8 +72,6 @@ const loginUser = async (mobile, password) => {
       console.log("❌ Mot de passe incorrect !");
       throw new Error("Numéro de mobile ou mot de passe incorrect.");
     }
-
-    console.log("🟢 Mot de passe valide !");
 
     // 📌 Étape 3: Générer un token JWT
     const token = jwt.sign(
@@ -92,7 +89,29 @@ const loginUser = async (mobile, password) => {
   }
 };
 
+
+// ✅ Fetch Logged-In User (Parent)
+const getLoggedInUser = async (userId) => {
+    try {
+
+        const user = await User.findOne({
+            where: { id: userId }, 
+            attributes: ["id", "full_name", "mobile"], 
+        });
+
+        if (!user) {
+            return { error: "User not found" };
+        }
+        return user;
+    } catch (error) {
+        console.error("❌ Error fetching user info:", error.message);
+        return { error: "Error retrieving user info" };
+    }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  getLoggedInUser,
+  
 };

@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post('/register', validateRegistration, userController.register);
 router.post('/login', userController.login);
+router.get("/me", authenticateToken, userController.getLoggedInUser);
 
 // OTP & Password Reset
 router.post('/send-otp', sendOTP);

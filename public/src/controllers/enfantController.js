@@ -4,7 +4,6 @@ const enfantService = require("../services/enfantService");
 exports.getChildrenByParent = async (req, res) => {
     try {
         const parentId = req.user.id;
-        console.log(`📌 Fetching children for parent ID: ${parentId}`);
 
         const enfants = await enfantService.getChildrenByParent(parentId);
 
@@ -21,7 +20,6 @@ exports.getChildrenByParent = async (req, res) => {
 exports.getChildrenByParentId = async (req, res) => {
   try {
       const { id } = req.params;
-      console.log(`📌 Fetching children for parent ID: ${id}`);
 
       const enfants = await enfantService.getChildrenByParent(id);
 

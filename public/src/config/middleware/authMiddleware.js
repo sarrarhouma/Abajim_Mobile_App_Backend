@@ -5,7 +5,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 const authenticateToken = async (req, res, next) => {
   try {
-    console.log("🛠️ Checking authentication...");
 
     // ✅ Extract token
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -18,13 +17,11 @@ const authenticateToken = async (req, res, next) => {
 
     // ✅ Decode token
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("🔑 Decoded Token:", decoded); 
 
     if (!decoded || !decoded.id) {
       console.error("❌ Decoded token is invalid:", decoded);
       return res.status(401).json({ error: "Token invalide." });
     }
-
     // ✅ Fetch user from database
     const user = await User.findByPk(decoded.id);
     if (!user) {
@@ -38,9 +35,7 @@ const authenticateToken = async (req, res, next) => {
       role_id: user.role_id,
       full_name: user.full_name,
     };
-
-    console.log("✅ Authenticated User:", req.user); 
-
+    
     next();
   } catch (error) {
     console.error("❌ Authentication Error:", error.message);

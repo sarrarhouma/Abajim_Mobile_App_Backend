@@ -1,6 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/db");
-const User = require("./User"); // Ensure User model exists
 
 class Webinar extends Model {}
 
@@ -16,16 +15,16 @@ Webinar.init(
     },
     private: { type: DataTypes.BOOLEAN, defaultValue: false },
     slug: { type: DataTypes.STRING, allowNull: true },
-    start_date: { type: DataTypes.DATE, allowNull: true }, // ✅ FIXED: Use DATE for timestamps
+    start_date: { type: DataTypes.DATE, allowNull: true },
     duration: { type: DataTypes.INTEGER, allowNull: true },
     image_cover: { type: DataTypes.STRING, allowNull: true },
     status: {
       type: DataTypes.ENUM("active", "pending", "is_draft", "inactive"),
       allowNull: false,
     },
-    created_at: { type: DataTypes.DATE, allowNull: false }, // ✅ FIXED: Use DATE
-    updated_at: { type: DataTypes.DATE, allowNull: false }, // ✅ FIXED: Use DATE
-    deleted_at: { type: DataTypes.DATE, allowNull: true }, // ✅ FIXED: Use DATE
+    created_at: { type: DataTypes.DATE, allowNull: false },
+    updated_at: { type: DataTypes.DATE, allowNull: false },
+    deleted_at: { type: DataTypes.DATE, allowNull: true },
     level_id: { type: DataTypes.INTEGER, allowNull: true },
     matiere_id: { type: DataTypes.INTEGER, allowNull: true },
     seo_description: { type: DataTypes.STRING(128), allowNull: true },
@@ -52,16 +51,10 @@ Webinar.init(
     sequelize,
     modelName: "Webinar",
     tableName: "webinars",
-    timestamps: true, // ✅ Enable automatic createdAt & updatedAt
-    paranoid: true, // ✅ Soft delete (deletedAt support)
-    underscored: true, // ✅ Ensure database uses snake_case
+    timestamps: true,
+    paranoid: true,
+    underscored: true,
   }
 );
-
-// ✅ Define Relationship to User
-Webinar.belongsTo(User, {
-    foreignKey: "teacher_id",
-    as: "teacher",
-  });
 
 module.exports = Webinar;

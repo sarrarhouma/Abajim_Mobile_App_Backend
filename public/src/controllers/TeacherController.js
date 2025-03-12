@@ -1,7 +1,6 @@
 const TeacherService = require("../services/TeacherService");
 
 const TeacherController = {
-  // Get a teacher's full profile
   async getTeacherById(req, res) {
     try {
       const teacher = await TeacherService.getTeacherById(req.params.id);

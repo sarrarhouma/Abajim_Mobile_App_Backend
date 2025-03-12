@@ -3,7 +3,7 @@ const TeacherController = require("../controllers/TeacherController");
 
 const router = express.Router();
 
-// Route to get a teacher by their ID
+// Route pour récupérer les détails d'un enseignant
 router.get("/:id", TeacherController.getTeacherById);
 
 module.exports = router;

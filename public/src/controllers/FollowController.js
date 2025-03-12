@@ -1,9 +1,27 @@
 const FollowService = require("../services/FollowService");
+const User = require("../models/User");
 
 const FollowController = {
   async subscribe(req, res) {
     try {
       const { follower, user_id } = req.body;
+      
+      if (!follower || !user_id) {
+        return res.status(400).json({ error: "Champs manquants" });
+      }
+
+      // Vérification des rôles
+      const child = await User.findOne({ where: { id: follower, role_id: 8 } });
+      const teacher = await User.findOne({ where: { id: user_id, role_id: 4 } });
+
+      if (!child) {
+        return res.status(403).json({ error: "Seuls les enfants peuvent suivre des enseignants." });
+      }
+
+      if (!teacher) {
+        return res.status(403).json({ error: "Vous ne pouvez suivre que des enseignants." });
+      }
+
       const result = await FollowService.subscribe(follower, user_id);
       res.json(result);
     } catch (err) {

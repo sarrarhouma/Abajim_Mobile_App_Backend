@@ -15,7 +15,9 @@ const SchoolLevel = require("./SchoolLevel");
 
 // ▶️ Webinar Relations
 Webinar.belongsTo(User, { foreignKey: "teacher_id", as: "teacher" });
-Webinar.hasMany(WebinarChapter, { foreignKey: "webinar_id", as: "chapters" }); // ✅ Re-ajoutée ici correctement
+User.hasMany(Webinar, { foreignKey: "teacher_id", as: "videos" });
+
+Webinar.hasMany(WebinarChapter, { foreignKey: "webinar_id", as: "chapters" }); 
 WebinarChapter.belongsTo(Webinar, { foreignKey: "webinar_id", as: "webinar" });
 
 // ▶️ WebinarChapter → File

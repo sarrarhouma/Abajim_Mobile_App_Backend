@@ -9,6 +9,7 @@ const webinarRoutes = require("./routes/webinarRoutes.js");
 const likeRoutes = require("./routes/likeRoutes.js");  // ✅ Added missing Like routes
 const followRoutes = require("./routes/followRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const sequelize = require("./config/db");  
 const User = require("./models/User");
 const Enfant = require("./models/Enfant");
@@ -31,6 +32,7 @@ app.use("/api/webinars", webinarRoutes);
 app.use("/api/likes", likeRoutes); // ✅ Like handling
 app.use("/api/follows", followRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/notifications", notificationRoutes);  
 // ✅ Fix: Correct the static path to serve `/avatars`
 const imagesPath = path.join(__dirname, "public/images");
 

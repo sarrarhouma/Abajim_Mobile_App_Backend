@@ -11,6 +11,10 @@ const Manuel = require("./Manuel")(sequelize, Sequelize);
 const Material = require("./Material")(sequelize, Sequelize);
 const SchoolLevel = require("./SchoolLevel");
 
+// 🔹 Notifications
+const Notification = require("./Notification")(sequelize, Sequelize.DataTypes);
+const NotificationStatus = require("./NotificationStatus")(sequelize, Sequelize.DataTypes);
+
 // 🔹 Définir les relations entre modèles
 
 // ▶️ Webinar Relations
@@ -35,6 +39,18 @@ Material.hasMany(Manuel, { foreignKey: "material_id" });
 Manuel.belongsTo(SchoolLevel, { foreignKey: "level_id", as: "level" });
 SchoolLevel.hasMany(Manuel, { foreignKey: "level_id" });
 
+// ▶️ Notification → NotificationStatus
+Notification.hasMany(NotificationStatus, {
+  foreignKey: 'notification_id',
+  as: 'statuses',
+  onDelete: 'CASCADE'
+});
+NotificationStatus.belongsTo(Notification, {
+  foreignKey: 'notification_id',
+  as: 'notification',
+  onDelete: 'CASCADE'
+});
+
 // 🔹 Exporter tous les modèles dans un objet db
 const db = {
   sequelize,
@@ -47,6 +63,8 @@ const db = {
   Manuel,
   Material,
   SchoolLevel,
+  Notification,
+  NotificationStatus
 };
 
 module.exports = db;

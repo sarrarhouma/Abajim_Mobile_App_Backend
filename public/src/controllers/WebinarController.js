@@ -1,16 +1,6 @@
 const WebinarService = require("../services/WebinarService");
 
 const WebinarController = {
-  // Create
-  // async createWebinar(req, res) {
-  //   try {
-  //     const newWebinar = await WebinarService.create(req.body);
-  //     res.status(201).json(newWebinar);
-  //   } catch (error) {
-  //     console.error("❌ Error creating webinar:", error);
-  //     res.status(500).json({ error: "Erreur serveur lors de l'ajout du webinar." });
-  //   }
-  // },
 
   // Get All
   async getAllWebinars(req, res) {
@@ -45,7 +35,27 @@ const WebinarController = {
       console.error("❌ Error fetching webinars by level:", error);
       res.status(500).json({ error: "Erreur serveur" });
     }
+  },
+// ✅ WebinarController.js
+async searchWebinars(req, res) {
+  try {
+    const { query, level_id } = req.query;
+    const webinars = await WebinarService.searchWebinars(query, level_id);
+
+    if (!webinars || webinars.length === 0) {
+      return res.status(404).json({ error: "Webinar non trouvé" });
+    }
+
+    res.json(webinars);
+  } catch (error) {
+    console.error("❌ Error in searchWebinars:", error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
+}
+
+
+
+
 };
 
 module.exports = WebinarController;

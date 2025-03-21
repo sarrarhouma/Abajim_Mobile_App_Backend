@@ -105,7 +105,7 @@ exports.switchChildSession = async (req, res) => {
     const token = jwt.sign(
       { id: child.id, role_id: child.role_id },
       SECRET_KEY,  // ✅ Use the correct variable
-      { expiresIn: "24h" }
+      { expiresIn: "48h" }
     );
 
    // console.log(`✅ Token generated for child ${child.id}: ${token}`);

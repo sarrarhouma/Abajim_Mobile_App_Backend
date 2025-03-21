@@ -1,4 +1,3 @@
-// ✅ WebinarService.js
 const { Op } = require("sequelize");
 const Webinar = require("../models/Webinar");
 const User = require("../models/User");
@@ -7,12 +6,7 @@ const File = require("../models/File");
 const FileTranslation = require("../models/FileTranslation");
 
 const WebinarService = {
-  // Create a new webinar
-  // async create(data) {
-  //   return await Webinar.create(data);
-  // },
-
-  // Get webinar by ID with teacher, chapters, files, and translations
+  // ✅ Récupérer un webinar par ID avec tous les détails
   async getById(id) {
     return await Webinar.findByPk(id, {
       include: [
@@ -44,7 +38,7 @@ const WebinarService = {
     });
   },
 
-  // Get all webinars with teacher only
+  // ✅ Tous les webinars avec prof
   async getAll() {
     return await Webinar.findAll({
       include: [
@@ -57,7 +51,7 @@ const WebinarService = {
     });
   },
 
-  // Get webinars by level_id
+  // ✅ Webinars par niveau
   async getByLevelId(levelId) {
     return await Webinar.findAll({
       where: { level_id: levelId },
@@ -85,6 +79,26 @@ const WebinarService = {
               ]
             }
           ]
+        }
+      ]
+    });
+  },
+
+  // ✅ Recherche par slug ou nom du prof
+  searchWebinars: async (query, levelId) => {
+    return await Webinar.findAll({
+      where: {
+        level_id: levelId,
+        [Op.or]: [
+          { slug: { [Op.like]: `%${query}%` } },
+          { '$teacher.full_name$': { [Op.like]: `%${query}%` } }
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: "teacher",
+          attributes: ["id", "full_name", "avatar", "bio"]
         }
       ]
     });

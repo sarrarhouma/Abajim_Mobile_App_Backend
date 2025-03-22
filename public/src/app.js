@@ -14,6 +14,7 @@ const sequelize = require("./config/db");
 const User = require("./models/User");
 const Enfant = require("./models/Enfant");
 const Manuel = require("./models/Manuel");
+const videoRoutes = require("./routes/videoRoutes");
 
 
 dotenv.config();
@@ -24,15 +25,29 @@ const app = express();
 app.use(express.json());
 
 // Routes API
+// ✅ Add the User routes
 app.use("/api/users", userRoutes);
+// ✅ Add the Enfant routes
 app.use("/api/enfants", enfantRoutes);
+// ✅ Add the Manuel routes
 app.use("/api/manuels", manuelRoutes);
+// ✅ Add the Document routes
 app.use("/api/documents", documentRoutes);
+// ✅ Add the Webinar routes
 app.use("/api/webinars", webinarRoutes);
-app.use("/api/likes", likeRoutes); // ✅ Like handling
+// ✅ Add the Like routes
+app.use("/api/likes", likeRoutes); 
+// ✅ Add the Follow routes
 app.use("/api/follows", followRoutes);
+// ✅ Add the Teacher routes
 app.use("/api/teachers", teacherRoutes);
-app.use("/api/notifications", notificationRoutes);  
+// ✅ Add the Notification routes
+app.use("/api/notifications", notificationRoutes); 
+// ✅ Add the Video routes 
+app.use("/api/videos", videoRoutes);
+
+
+
 // ✅ Fix: Correct the static path to serve `/avatars`
 const imagesPath = path.join(__dirname, "public/images");
 

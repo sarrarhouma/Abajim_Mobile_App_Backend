@@ -71,7 +71,7 @@ Video.init({
     sequelize,
     modelName: 'Video',
     tableName: 'videos',
-    timestamps: true
+    timestamps: false
 });
 
 module.exports = Video;

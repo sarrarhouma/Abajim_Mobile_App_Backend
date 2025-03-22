@@ -10,6 +10,7 @@ const FileTranslation = require("./FileTranslation");
 const Manuel = require("./Manuel")(sequelize, Sequelize);
 const Material = require("./Material")(sequelize, Sequelize);
 const SchoolLevel = require("./SchoolLevel");
+const Video = require("./Videos");
 
 // 🔹 Notifications
 const Notification = require("./Notification")(sequelize, Sequelize.DataTypes);
@@ -50,7 +51,9 @@ NotificationStatus.belongsTo(Notification, {
   as: 'notification',
   onDelete: 'CASCADE'
 });
-
+// ✅ Manuel → Video
+Manuel.hasMany(Video, { foreignKey: "manuel_id", as: "videos" });
+Video.belongsTo(Manuel, { foreignKey: "manuel_id", as: "manuel" });
 // 🔹 Exporter tous les modèles dans un objet db
 const db = {
   sequelize,
@@ -64,7 +67,8 @@ const db = {
   Material,
   SchoolLevel,
   Notification,
-  NotificationStatus
+  NotificationStatus,
+  Video
 };
 
 module.exports = db;

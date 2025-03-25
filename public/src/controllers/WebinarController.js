@@ -36,26 +36,20 @@ const WebinarController = {
       res.status(500).json({ error: "Erreur serveur" });
     }
   },
-// ✅ WebinarController.js
-async searchWebinars(req, res) {
+ // 🔎 Search webinars by title (slug) or teacher name
+ async searchWebinars(req, res) {
   try {
-    const { query, level_id } = req.query;
-    const webinars = await WebinarService.searchWebinars(query, level_id);
+    const { levelId, keyword } = req.params;
+    const webinars = await WebinarService.searchByKeyword(levelId, keyword);
 
     if (!webinars || webinars.length === 0) {
-      return res.status(404).json({ error: "Webinar non trouvé" });
+      return res.status(404).json({ error: "Aucun webinaire trouvé" });
     }
-
     res.json(webinars);
   } catch (error) {
-    console.error("❌ Error in searchWebinars:", error);
+    console.error("❌ Erreur dans WebinarController.searchWebinars:", error);
     res.status(500).json({ error: "Erreur serveur" });
   }
-}
-
-
-
-
+},
 };
-
 module.exports = WebinarController;

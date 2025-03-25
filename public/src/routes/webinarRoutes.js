@@ -16,6 +16,7 @@ router.get("/:id", WebinarController.getWebinarById);
 // ✅ Route pour liker un webinar
 router.post("/:id/like", LikeController.likeWebinar);
 //search 
-router.get("/search", WebinarController.searchWebinars);
+router.get("/search/:levelId/:keyword", WebinarController.searchWebinars);
+
 
 module.exports = router;

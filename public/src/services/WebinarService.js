@@ -85,13 +85,13 @@ const WebinarService = {
   },
 
   // ✅ Recherche par slug ou nom du prof
-  searchWebinars: async (query, levelId) => {
+  async searchByKeyword(levelId, keyword) {
     return await Webinar.findAll({
       where: {
         level_id: levelId,
         [Op.or]: [
-          { slug: { [Op.like]: `%${query}%` } },
-          { '$teacher.full_name$': { [Op.like]: `%${query}%` } }
+          { slug: { [Op.like]: `%${keyword}%` } },
+          { '$teacher.full_name$': { [Op.like]: `%${keyword}%` } }
         ]
       },
       include: [
@@ -102,7 +102,19 @@ const WebinarService = {
         }
       ]
     });
-  }
+  },
+
+  async getAll() {
+    return await Webinar.findAll({
+      include: [
+        {
+          model: User,
+          as: "teacher",
+          attributes: ["id", "full_name", "avatar", "bio"]
+        }
+      ]
+    });
+  },
 };
 
 module.exports = WebinarService;

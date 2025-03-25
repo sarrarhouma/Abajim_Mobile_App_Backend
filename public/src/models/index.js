@@ -20,7 +20,10 @@ const NotificationStatus = require("./NotificationStatus")(sequelize, Sequelize.
 
 // ▶️ Webinar Relations
 Webinar.belongsTo(User, { foreignKey: "teacher_id", as: "teacher" });
+User.hasMany(Webinar, { foreignKey: "teacher_id", as: "webinars" });
 User.hasMany(Webinar, { foreignKey: "teacher_id", as: "videos" });
+User.hasMany(Webinar, { foreignKey: "teacher_id", as: "teacher" });
+
 
 Webinar.hasMany(WebinarChapter, { foreignKey: "webinar_id", as: "chapters" }); 
 WebinarChapter.belongsTo(Webinar, { foreignKey: "webinar_id", as: "webinar" });

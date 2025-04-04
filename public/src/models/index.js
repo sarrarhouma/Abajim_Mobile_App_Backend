@@ -15,7 +15,7 @@ const Video = require("./Videos");
 // 🔹 Notifications
 const Notification = require("./Notification")(sequelize, Sequelize.DataTypes);
 const NotificationStatus = require("./NotificationStatus")(sequelize, Sequelize.DataTypes);
-
+const Favorite = require("./Favorite")(sequelize, Sequelize); 
 // 🔹 Définir les relations entre modèles
 
 // ▶️ Webinar Relations
@@ -57,6 +57,14 @@ NotificationStatus.belongsTo(Notification, {
 // ✅ Manuel → Video
 Manuel.hasMany(Video, { foreignKey: "manuel_id", as: "videos" });
 Video.belongsTo(Manuel, { foreignKey: "manuel_id", as: "manuel" });
+
+// favorites → webinar
+// Ajoute cette association
+Webinar.hasMany(Favorite, { foreignKey: "webinar_id", as: "favorites" });
+Favorite.belongsTo(Webinar, { foreignKey: "webinar_id", as: "webinar" });
+
+User.hasMany(Favorite, { foreignKey: "user_id", as: "favorites" });
+Favorite.belongsTo(User, { foreignKey: "user_id", as: "user" });
 // 🔹 Exporter tous les modèles dans un objet db
 const db = {
   sequelize,
@@ -71,7 +79,8 @@ const db = {
   SchoolLevel,
   Notification,
   NotificationStatus,
-  Video
+  Video,
+  Favorite
 };
 
 module.exports = db;

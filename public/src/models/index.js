@@ -11,6 +11,12 @@ const Manuel = require("./Manuel")(sequelize, Sequelize);
 const Material = require("./Material")(sequelize, Sequelize);
 const SchoolLevel = require("./SchoolLevel");
 const Video = require("./Videos");
+const Meeting = require('./Meeting');
+const MeetingFile = require('./MeetingFile');
+const MeetingTime = require('./MeetingTime');
+const ReserveMeeting = require('./ReserveMeeting');
+const Sale = require('./Sale');
+const Submaterial = require("./Submaterial");
 
 // 🔹 Notifications
 const Notification = require("./Notification")(sequelize, Sequelize.DataTypes);
@@ -65,6 +71,65 @@ Favorite.belongsTo(Webinar, { foreignKey: "webinar_id", as: "webinar" });
 
 User.hasMany(Favorite, { foreignKey: "user_id", as: "favorites" });
 Favorite.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+// Relations pour les réservations de sessions enlignes : meetings
+Meeting.hasMany(MeetingFile, { foreignKey: 'meeting_id', as: 'files' });
+MeetingFile.belongsTo(Meeting, { foreignKey: 'meeting_id', as: 'meeting' });
+
+MeetingFile.hasMany(MeetingTime, { foreignKey: 'meeting_id', as: 'times' });
+MeetingTime.belongsTo(MeetingFile, { foreignKey: 'meeting_id', as: 'file' });
+
+MeetingTime.hasMany(ReserveMeeting, { foreignKey: 'meeting_time_id', as: 'reservations' });
+ReserveMeeting.belongsTo(MeetingTime, { foreignKey: 'meeting_time_id', as: 'time' });
+
+// 🔹 Relation Material → Submaterial
+Material.hasMany(Submaterial, { foreignKey: "material_id", as: "submaterials" });
+Submaterial.belongsTo(Material, { foreignKey: "material_id", as: "material" });
+
+// ✅ Relations entre Sale et les autres modèles
+User.hasMany(Sale, { foreignKey: 'buyer_id', as: 'purchases' });
+User.hasMany(Sale, { foreignKey: 'seller_id', as: 'sales' });
+Sale.belongsTo(User, { foreignKey: 'buyer_id', as: 'buyer' });
+Sale.belongsTo(User, { foreignKey: 'seller_id', as: 'seller' });
+
+Webinar.hasMany(Sale, { foreignKey: 'webinar_id', as: 'webinarSales' });
+Sale.belongsTo(Webinar, { foreignKey: 'webinar_id', as: 'webinar' });
+
+Meeting.hasMany(Sale, { foreignKey: 'meeting_id', as: 'meetingSales' });
+Sale.belongsTo(Meeting, { foreignKey: 'meeting_id', as: 'meeting' });
+
+
+// ReserveMeeting → Meeting
+ReserveMeeting.belongsTo(Meeting, { foreignKey: 'meeting_id', as: 'meeting' });
+Meeting.hasMany(ReserveMeeting, { foreignKey: 'meeting_id', as: 'meeting_reservations' });
+
+// ReserveMeeting → MeetingTime
+ReserveMeeting.belongsTo(MeetingTime, { foreignKey: 'meeting_time_id', as: 'meetingTime' });
+MeetingTime.hasMany(ReserveMeeting, { foreignKey: 'meeting_time_id', as: 'meetingTime_reservations' });
+
+// ReserveMeeting → Sale
+ReserveMeeting.belongsTo(Sale, { foreignKey: 'sale_id', as: 'sale' });
+Sale.hasMany(ReserveMeeting, { foreignKey: 'sale_id', as: 'sale_reservations' });
+
+// ReserveMeeting → User
+ReserveMeeting.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(ReserveMeeting, { foreignKey: 'user_id', as: 'user_reservations' });
+
+// 🔹 Meeting → User (Teacher)
+Meeting.belongsTo(User, { foreignKey: 'teacher_id', as: 'teacher' });
+User.hasMany(Meeting, { foreignKey: 'teacher_id', as: 'meetings' });
+
+// 🔹 Relation entre Meeting et MeetingTime
+Meeting.hasMany(MeetingTime, { foreignKey: 'meeting_id', as: 'times' });
+MeetingTime.belongsTo(Meeting, { foreignKey: 'meeting_id', as: 'meeting' });
+
+// 📌 Association entre MeetingTime et Material
+MeetingTime.belongsTo(Material, { as: 'material', foreignKey: 'matiere_id' });
+Material.hasMany(MeetingTime, { as: 'times', foreignKey: 'matiere_id' });
+MeetingTime.belongsTo(Submaterial, { as: 'submaterial', foreignKey: 'submaterial_id' });
+Submaterial.hasMany(MeetingTime, { as: 'times', foreignKey: 'submaterial_id' });
+
+
 // 🔹 Exporter tous les modèles dans un objet db
 const db = {
   sequelize,
@@ -80,7 +145,13 @@ const db = {
   Notification,
   NotificationStatus,
   Video,
-  Favorite
+  Favorite,
+  Meeting,
+  MeetingFile,
+  MeetingTime,
+  ReserveMeeting,
+  Sale,
+  Submaterial,
 };
 
 module.exports = db;

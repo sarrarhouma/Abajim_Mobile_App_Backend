@@ -15,6 +15,7 @@ const User = require("./models/User");
 const Enfant = require("./models/Enfant");
 const Manuel = require("./models/Manuel");
 const videoRoutes = require("./routes/videoRoutes");
+const meetingRoutes = require('./routes/meetingRoutes');
 
 
 dotenv.config();
@@ -45,6 +46,8 @@ app.use("/api/teachers", teacherRoutes);
 app.use("/api/notifications", notificationRoutes); 
 // ✅ Add the Video routes 
 app.use("/api/videos", videoRoutes);
+// ✅ Add the Meeting routes
+app.use('/api/meetings', meetingRoutes);
 
 
 

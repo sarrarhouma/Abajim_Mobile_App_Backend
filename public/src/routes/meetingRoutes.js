@@ -18,14 +18,9 @@ router.get('/level/:levelId', MeetingController.getMeetingsByLevel);
 // Récupérer les horaires d'un fichier de meeting par ID
 router.get('/files/:fileId/times', MeetingController.getTimesByFileId);
 
-// Réserver un meeting
 router.post('/reserve', MeetingController.reserveMeeting);
-
-// Annuler une réservation
-router.delete('/reserve/:reservationId', MeetingController.cancelReservation);
-
-// Récupérer les réservations d'un utilisateur par ID
-router.get('/reservations/user/:userId', MeetingController.getReservationsByUserId);
+router.delete('/cancel/:reservationId', MeetingController.cancelReservation);
+router.get('/user/:userId', MeetingController.getReservationsByUserId);
 
 // modifier une réservation par ID
 router.put('/reserve/:reservationId', MeetingController.updateReservation);

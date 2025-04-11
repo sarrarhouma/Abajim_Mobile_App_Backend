@@ -60,20 +60,48 @@ static async getAllMeetings(req, res) {
 // 📌 Réserver un meeting
 static async reserveMeeting(req, res) {
     try {
-        const { meeting_id, sale_id, user_id } = req.body;
+        const { meeting_id, user_id, meeting_time_id, day, date, start_at, end_at, student_count, paid_amount, meeting_type, status, created_at, reserved_at, payment_method, type, discount, description, link, password } = req.body;
 
         // Vérification des données requises
-        if (!meeting_id || !sale_id || !user_id) {
-            return res.status(400).json({ message: 'Les paramètres meeting_id, sale_id et user_id sont obligatoires.' });
+        if (!meeting_id || !user_id || !meeting_time_id || !day || !date || !start_at || !end_at || !student_count || !paid_amount || !meeting_type || !status || !created_at || !reserved_at) {
+            return res.status(400).json({ message: "Les paramètres requis sont manquants." });
         }
 
-        const reservation = await MeetingService.reserveMeeting(req.body);
+        // Préparer les données à envoyer au service
+        const reservationData = {
+            meeting_id,
+            user_id,
+            meeting_time_id,
+            day,
+            date,
+            start_at,
+            end_at,
+            student_count,
+            paid_amount,
+            meeting_type,
+            status,
+            created_at,
+            reserved_at,
+            payment_method,
+            type,
+            discount,
+            description,
+            link,
+            password
+        };
+
+        // Appeler le service de réservation
+        const reservation = await MeetingService.reserveMeeting(reservationData);
+
+        // Retourner la réponse
         res.status(201).json(reservation);
+
     } catch (error) {
-        console.error("Erreur lors de la réservation du meeting : ", error);
+        console.error("❌ Erreur lors de la réservation du meeting : ", error);
         res.status(500).json({ message: 'Erreur lors de la réservation du meeting', error: error.message || error });
     }
 }
+
 
 // 📌 Annuler une réservation
 static async cancelReservation(req, res) {
@@ -85,6 +113,7 @@ static async cancelReservation(req, res) {
         res.status(500).json({ message: 'Erreur lors de l\'annulation de la réservation', error: error.message });
     }
 }
+
 // 📌 Récupérer les réservations d'un utilisateur
 static async getReservationsByUserId(req, res) {
     try {

@@ -77,60 +77,91 @@ static async getMeetingById(meetingId) {
             where: { meeting_id: fileId }
         });
     }
-    static async reserveMeeting(data) {
-        try {
-            // 🔍 Vérification de l'existence de l'enregistrement de vente (sale)
-            const sale = await Sale.findByPk(data.sale_id);
-            if (!sale) throw new Error('Vente non trouvée (sale_id invalide)');
-    
-            // 🔍 Vérification de l'utilisateur (user)
-            const user = await User.findByPk(data.user_id);
-            if (!user) throw new Error('Utilisateur non trouvé (user_id invalide)');
-    
-            // 🔍 Création de la réservation
-            const reservation = await ReserveMeeting.create({
-                meeting_id: data.meeting_id,
-                sale_id: data.sale_id,
-                user_id: data.user_id,
-                meeting_time_id: data.meeting_time_id,
-                day: data.day,
-                date: data.date,
-                start_at: data.start_at,
-                end_at: data.end_at,
-                student_count: data.student_count,
-                paid_amount: data.paid_amount,
-                meeting_type: data.meeting_type,
-                discount: data.discount,
-                link: data.link,
-                password: data.password,
-                description: data.description,
-                status: data.status,
-                created_at: data.created_at,
-                locked_at: data.locked_at,
-                reserved_at: data.reserved_at
-            });
-    
-            return reservation;
-        } catch (error) {
-            console.error("Erreur lors de la création de la réservation : ", error); // ✅ Afficher l'erreur complète
-            throw error; // Relancer l'erreur pour qu'elle soit affichée par le contrôleur
+
+// 🔹 Créer une réservation
+static async reserveMeeting(data) {
+    try {
+        // 🔍 Récupération du Meeting pour obtenir l'ID de l'enseignant
+        const meeting = await Meeting.findByPk(data.meeting_id);
+
+        if (!meeting) {
+            throw new Error('Meeting non trouvé pour cet ID.');
         }
-    }
-    static async cancelReservation(reservationId) {
-        try {
-            const reservation = await ReserveMeeting.findByPk(reservationId);
-            if (!reservation) {
-                throw new Error("Réservation non trouvée");
-            }
-            
-            await reservation.destroy(); // Suppression de la réservation
-            return { message: "Réservation annulée avec succès" };
-        } catch (error) {
-            console.error("Erreur lors de l'annulation de la réservation : ", error);
-            throw error;
+
+        // 🔍 Récupération de l'utilisateur enseignant (seller) dans la table `users`
+        const teacher = await User.findOne({
+            where: { id: meeting.teacher_id, role_id: 4 } // ✅ role_id = 4 => Teacher
+        });
+
+        if (!teacher) {
+            throw new Error('Enseignant non trouvé ou ce user n\'est pas un enseignant.');
         }
+
+        const sellerId = teacher.id;  // ✅ ID de l'enseignant récupéré
+
+        // ✅ Création de la vente avant la réservation
+        const sale = await Sale.create({
+            seller_id: sellerId,
+            buyer_id: data.user_id,
+            payment_method: data.payment_method || 'card',
+            amount: data.paid_amount,
+            total_amount: data.paid_amount - (data.discount || 0),
+            created_at: Math.floor(Date.now() / 1000),
+            type: data.type || 'meeting'
+        });
+
+        if (!sale) throw new Error('Erreur lors de la création de la vente.');
+
+        // 🔍 Création de la réservation
+        const reservation = await ReserveMeeting.create({
+            meeting_id: data.meeting_id,
+            sale_id: sale.id,
+            user_id: data.user_id,
+            meeting_time_id: data.meeting_time_id,
+            day: data.day,
+            date: data.date,
+            start_at: data.start_at,
+            end_at: data.end_at,
+            student_count: data.student_count,
+            paid_amount: data.paid_amount,
+            meeting_type: data.meeting_type,
+            discount: data.discount,
+            link: data.link,
+            password: data.password,
+            description: data.description,
+            status: data.status,
+            created_at: data.created_at,
+            locked_at: data.locked_at,
+            reserved_at: data.reserved_at
+        });
+
+        return reservation;
+
+    } catch (error) {
+        console.error("❌ Erreur lors de la création de la réservation : ", error.message);
+        throw error;
     }
-// 📌 Récupérer les réservations d'un utilisateur avec l'enseignant
+}
+
+
+
+// 🔹 Annuler une réservation
+static async cancelReservation(reservationId) {
+    try {
+        const reservation = await ReserveMeeting.findByPk(reservationId);
+        if (!reservation) {
+            throw new Error("Réservation non trouvée");
+        }
+        
+        await reservation.destroy();
+        return { message: "Réservation annulée avec succès" };
+    } catch (error) {
+        console.error("Erreur lors de l'annulation de la réservation : ", error);
+        throw error;
+    }
+}
+
+// 🔹 Récupérer les réservations par utilisateur
 static async getReservationsByUserId(userId) {
     try {
         const reservations = await ReserveMeeting.findAll({
@@ -140,11 +171,7 @@ static async getReservationsByUserId(userId) {
                     model: Meeting, 
                     as: 'meeting', 
                     include: [
-                        { 
-                            model: User, 
-                            as: 'teacher',  
-                            attributes: ['id', 'full_name', 'avatar']  // Récupère l'avatar et le nom complet de l'enseignant
-                        },
+                        { model: User, as: 'teacher', attributes: ['id', 'full_name', 'avatar'] },
                         { 
                             model: MeetingTime, 
                             as: 'times',
@@ -164,9 +191,7 @@ static async getReservationsByUserId(userId) {
         throw error;
     }
 }
-
-
-    
+//  updateReservation  
     static async updateReservation(reservationId, data) {
         try {
             const reservation = await ReserveMeeting.findByPk(reservationId);
@@ -186,3 +211,50 @@ static async getReservationsByUserId(userId) {
          
 }    
 module.exports = MeetingService;
+
+
+//    // 🔹 Créer une réservation
+//    static async reserveMeeting(data) {
+//     try {
+//         // ✅ Création de la vente avant la réservation
+//         const sale = await Sale.create({
+//             seller_id: data.seller_id || 1954,  
+//             buyer_id: data.user_id,
+//             payment_method: data.payment_method || 'card',
+//             amount: data.paid_amount,
+//             total_amount: data.paid_amount - (data.discount || 0),
+//             created_at: Math.floor(Date.now() / 1000),
+//             type: data.type || 'meeting'  
+//         });
+
+//         if (!sale) throw new Error('Erreur lors de la création de la vente.');
+
+//         // 🔍 Création de la réservation
+//         const reservation = await ReserveMeeting.create({
+//             meeting_id: data.meeting_id,
+//             sale_id: sale.id,
+//             user_id: data.user_id,
+//             meeting_time_id: data.meeting_time_id,
+//             day: data.day,
+//             date: data.date,
+//             start_at: data.start_at,
+//             end_at: data.end_at,
+//             student_count: data.student_count,
+//             paid_amount: data.paid_amount,
+//             meeting_type: data.meeting_type,
+//             discount: data.discount,
+//             link: data.link,
+//             password: data.password,
+//             description: data.description,
+//             status: data.status,
+//             created_at: data.created_at,
+//             locked_at: data.locked_at,
+//             reserved_at: data.reserved_at
+//         });
+
+//         return reservation;
+//     } catch (error) {
+//         console.error("Erreur lors de la création de la réservation : ", error);
+//         throw error;
+//     }
+// }

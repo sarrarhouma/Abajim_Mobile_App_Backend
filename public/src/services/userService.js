@@ -101,10 +101,19 @@ const getLoggedInUser = async (userId) => {
         return { error: error.message };
     }
 };
-
+const uploadAvatar = async (userId, filePath) => {
+  try {
+    await User.update({ avatar: filePath }, { where: { id: userId } });
+    return { avatar: filePath };
+  } catch (error) {
+    console.error("❌ Erreur dans uploadAvatar (service):", error.message);
+    throw new Error("Échec de la mise à jour de l’avatar.");
+  }
+};
 module.exports = {
   registerUser,
   loginUser,
   getLoggedInUser,
+  uploadAvatar,
   
 };

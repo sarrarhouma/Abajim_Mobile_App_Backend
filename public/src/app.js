@@ -20,6 +20,7 @@ const saleRoutes = require('./routes/saleRoutes');
 const cartRoutes = require("./routes/cart");
 const subscriptionRoutes = require("./routes/subscription");
 const checkoutRoutes = require("./routes/checkout");
+const user = require("./routes/user");
 dotenv.config();
 
 const app = express();
@@ -58,8 +59,8 @@ app.use("/api/cart", cartRoutes);
 // ✅ Add the Subscription routes
 app.use("/api/subscription", subscriptionRoutes);
 // ✅ Add the Checkout routes
-app.use("/api/cart", checkoutRoutes); // même préfixe que le panier
-
+app.use("/api/checkout", checkoutRoutes); 
+app.use("/api/avatar", user); 
 // ✅ Fix: Correct the static path to serve `/avatars`
 const imagesPath = path.join(__dirname, "public/images");
 

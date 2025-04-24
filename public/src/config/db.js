@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
 const dotenv = require("dotenv");
 
-dotenv.config(); // Load environment variables
+dotenv.config(); 
 
 // Create a Sequelize instance with MySQL connection details
 const sequelize = new Sequelize({
@@ -10,8 +10,8 @@ const sequelize = new Sequelize({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  dialect: "mysql", // Ensure you're using the correct dialect for MySQL
-  logging: false, // Set to true if you want to see SQL queries in the console
+  dialect: "mysql", 
+  logging: false, 
 });
 // Check the database connection
 sequelize.authenticate()

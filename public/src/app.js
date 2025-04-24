@@ -6,7 +6,7 @@ const enfantRoutes = require("./routes/enfantRoutes");
 const documentRoutes = require("./routes/documentRoutes"); 
 const manuelRoutes = require("./routes/manuels.js"); 
 const webinarRoutes = require("./routes/webinarRoutes.js");
-const likeRoutes = require("./routes/likeRoutes.js");  // ✅ Added missing Like routes
+const likeRoutes = require("./routes/likeRoutes.js");  
 const followRoutes = require("./routes/followRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
@@ -17,8 +17,9 @@ const Manuel = require("./models/Manuel");
 const videoRoutes = require("./routes/videoRoutes");
 const meetingRoutes = require('./routes/meetingRoutes');
 const saleRoutes = require('./routes/saleRoutes');
-
-
+const cartRoutes = require("./routes/cart");
+const subscriptionRoutes = require("./routes/subscription");
+const checkoutRoutes = require("./routes/checkout");
 dotenv.config();
 
 const app = express();
@@ -49,9 +50,15 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/videos", videoRoutes);
 // ✅ Add the Meeting routes
 app.use('/api/meetings', meetingRoutes);
+// ✅ Add the Sale routes
 app.use('/api/sales', saleRoutes);
-
-
+// Paiements
+// ✅ Add the Cart routes
+app.use("/api/cart", cartRoutes);
+// ✅ Add the Subscription routes
+app.use("/api/subscription", subscriptionRoutes);
+// ✅ Add the Checkout routes
+app.use("/api/cart", checkoutRoutes); // même préfixe que le panier
 
 // ✅ Fix: Correct the static path to serve `/avatars`
 const imagesPath = path.join(__dirname, "public/images");

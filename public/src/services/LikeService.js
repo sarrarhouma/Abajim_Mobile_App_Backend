@@ -12,11 +12,9 @@ const LikeService = {
     const existingLike = await Like.findOne({ where: { user_id, video_id } });
 
     if (existingLike) {
-      console.log("👎 Like supprimé");
       await existingLike.destroy();
       return { message: "Like supprimé" };
     } else {
-      console.log("👍 Like ajouté");
       const newLike = await Like.create({ user_id, video_id });
       return { message: "Like ajouté", data: newLike };
     }

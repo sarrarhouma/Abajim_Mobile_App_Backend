@@ -98,16 +98,17 @@ static async reserveMeeting(data) {
         }
 
         const sellerId = teacher.id;  // ✅ ID de l'enseignant récupéré
-
+        const paidAmount = parseFloat(data.paid_amount);
+        const discount = parseFloat(data.discount || 0);
         // ✅ Création de la vente avant la réservation
         const sale = await Sale.create({
-            seller_id: sellerId,
-            buyer_id: data.user_id,
-            payment_method: data.payment_method || 'card',
-            amount: data.paid_amount,
-            total_amount: data.paid_amount - (data.discount || 0),
-            created_at: Math.floor(Date.now() / 1000),
-            type: data.type || 'meeting'
+          seller_id: sellerId,
+          buyer_id: data.user_id,
+          payment_method: data.payment_method || 'card',
+          amount: paidAmount,
+          total_amount: paidAmount - discount,
+          created_at: Math.floor(Date.now() / 1000),
+          type: data.type || 'meeting'
         });
 
         if (!sale) throw new Error('Erreur lors de la création de la vente.');

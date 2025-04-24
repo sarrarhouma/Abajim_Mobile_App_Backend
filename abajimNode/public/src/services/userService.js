@@ -34,7 +34,7 @@ const registerUser = async (data) => {
     return newUser;
   } catch (error) {
     console.error('Error in registerUser:', error.message);
-    throw new Error('Registration failed.');
+    throw new Error( error.message);
   }
 };
 
@@ -60,7 +60,7 @@ const loginUser = async (mobile, password) => {
     return { token, user };
   } catch (error) {
     console.error('Error in loginUser:', error.message);
-    throw new Error('Login failed.');
+    throw new Error(error.message);
   }
 };
 

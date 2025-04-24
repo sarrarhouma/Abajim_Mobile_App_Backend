@@ -25,16 +25,14 @@ const registerUser = async (data) => {
       mobile,
       password: hashedPassword,
       role_id,
-      status: "active",
+      status: "inactive",
     });
-
-    console.log("✅ Utilisateur créé:", newUser.id);
 
     // 📌 Génération du Token JWT
     const token = jwt.sign(
       { id: newUser.id, role_id: newUser.role_id },
       SECRET_KEY,
-      { expiresIn: "24h" }
+      { expiresIn: "6480h" }
     );
 
     console.log("✅ User registered successfully:", token);
@@ -42,7 +40,7 @@ const registerUser = async (data) => {
     return { token, user: newUser };
   } catch (error) {
     console.error("❌ Erreur dans registerUser:", error.message);
-    throw new Error("Échec de l'inscription.");
+    throw new Error(error.message || "Échec de l'enregistrement.");
   }
 };
 
@@ -62,14 +60,9 @@ const loginUser = async (mobile, password) => {
     }
 
 
-    // 📌 Étape 2: Vérifier si le mot de passe est correct
-    console.log("📌 Mot de passe entré:", password);
-
-
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
-      console.log("❌ Mot de passe incorrect !");
       throw new Error("Numéro de mobile ou mot de passe incorrect.");
     }
 
@@ -77,7 +70,7 @@ const loginUser = async (mobile, password) => {
     const token = jwt.sign(
       { id: user.id, role_id: user.role_id },
       SECRET_KEY,
-      { expiresIn: "24h" }
+      { expiresIn: "6480h" }
     );
 
     console.log(`✅ Token généré pour l'utilisateur ${user.id}: ${token}`);
@@ -85,7 +78,7 @@ const loginUser = async (mobile, password) => {
     return { token, user };
   } catch (error) {
     console.error("❌ Erreur dans loginUser:", error.message);
-    throw new Error("Échec de la connexion.");
+    throw new Error(error.message);
   }
 };
 
@@ -105,7 +98,7 @@ const getLoggedInUser = async (userId) => {
         return user;
     } catch (error) {
         console.error("❌ Error fetching user info:", error.message);
-        return { error: "Error retrieving user info" };
+        return { error: error.message };
     }
 };
 

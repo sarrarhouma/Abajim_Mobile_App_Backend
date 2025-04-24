@@ -31,5 +31,3 @@ const TeacherService = {
 };
 
 module.exports = TeacherService;
-
-

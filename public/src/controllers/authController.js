@@ -84,8 +84,6 @@ exports.switchChildSession = async (req, res) => {
     const { childId } = req.body;
     const parentId = req.user.id;
 
-    // console.log(`📌 Received childId: ${childId}`);
-    // console.log(`👨‍👧 Parent ID from token: ${parentId}`);
 
     if (!childId) {
       return res.status(400).json({ error: "childId is required" });
@@ -105,10 +103,9 @@ exports.switchChildSession = async (req, res) => {
     const token = jwt.sign(
       { id: child.id, role_id: child.role_id },
       SECRET_KEY,  // ✅ Use the correct variable
-      { expiresIn: "48h" }
+      { expiresIn: "6480h" }
     );
 
-   // console.log(`✅ Token generated for child ${child.id}: ${token}`);
 
     res.status(200).json({ token, child: child.dataValues });
 

@@ -2,11 +2,10 @@ const userService = require('../services/userService');
 
 // Register new user
 const register = async (req, res) => {
-  console.log('Request body:', req.body); // Log request body for debugging
+ 
   try {
     const { full_name, mobile, password, role_id } = req.body;
     if (!full_name || !mobile || !password || !role_id) {
-      console.log('Missing required fields:', req.body);
       return res.status(400).json({ error: 'All fields are required.' });
     }
 

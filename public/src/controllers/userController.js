@@ -5,15 +5,21 @@ const userService = require("../services/userService");
  */
 const register = async (req, res) => {
   try {
-    const { full_name, mobile, password, role_id } = req.body;
+    const { full_name, mobile, password, confirm_password, role_id } = req.body;
 
-    if (!full_name || !mobile || !password || !role_id) {
+    // ✅ Validation utilisateur côté controller
+    if (!full_name || !mobile || !password || !confirm_password || !role_id) {
       return res.status(400).json({ error: "Tous les champs sont requis." });
     }
 
-    const result = await userService.registerUser({ full_name, mobile, password, role_id });
+    if (password !== confirm_password) {
+      return res.status(400).json({ error: "Les mots de passe ne correspondent pas." });
+    }
 
+    // ✅ Appel du service avec données valides
+    const result = await userService.registerUser({ full_name, mobile, password, role_id });
     res.status(201).json(result);
+
   } catch (error) {
     console.error("❌ Erreur lors de l'inscription:", error.message);
     res.status(500).json({ error: error.message });

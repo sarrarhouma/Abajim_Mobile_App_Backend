@@ -60,8 +60,32 @@ const getLoggedInUser = async (req, res) => {
       return res.status(500).json({ error: "Server error while fetching user info" });
   }
 };
+// adding personnal image for the parent 
+const uploadAvatar = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ error: "Aucun fichier reçu." });
+    }
+
+    const filePath = `/uploads/avatars/${req.file.filename}`;
+
+    const result = await userService.uploadAvatar(userId, filePath);
+
+    return res.status(200).json({
+      message: "Avatar mis à jour avec succès",
+      avatar: result.avatar,
+    });
+  } catch (error) {
+    console.error("❌ Erreur uploadAvatar (controller):", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getLoggedInUser,
+ uploadAvatar,
 };

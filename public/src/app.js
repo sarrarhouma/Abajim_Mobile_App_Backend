@@ -68,7 +68,8 @@ app.use("/images", express.static(imagesPath));  // ✅ Serve static files from 
   // ✅ Serve static files from the correct directory
 
 
-
+  app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+  
 
 // Route de base
 app.get("/", (req, res) => {

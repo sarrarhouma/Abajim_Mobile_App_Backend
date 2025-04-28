@@ -89,7 +89,7 @@ const getLoggedInUser = async (userId) => {
 
         const user = await User.findOne({
             where: { id: userId }, 
-            attributes: ["id", "full_name", "mobile"], 
+            attributes: ["id", "full_name", "mobile","avatar"], 
         });
 
         if (!user) {

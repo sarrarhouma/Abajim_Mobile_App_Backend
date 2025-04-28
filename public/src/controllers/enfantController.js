@@ -93,3 +93,18 @@ exports.deleteChild = async (req, res) => {
         return res.status(500).json({ error: "Erreur interne du serveur." });
     }
 };
+exports.uploadKidAvatar = async (req, res) => {
+    try {
+      const childId = req.params.id;
+      if (!req.file) return res.status(400).json({ error: "Fichier manquant" });
+  
+      const avatarPath = `/uploads/kids/${req.file.filename}`;
+      const result = await enfantService.setChildAvatar(childId, avatarPath);
+  
+      if (result.error) return res.status(400).json({ error: result.error });
+      return res.json({ message: "Avatar mis à jour", avatar: result.avatar });
+    } catch (err) {
+      console.error("Erreur update avatar enfant:", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+  };

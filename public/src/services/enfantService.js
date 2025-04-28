@@ -118,3 +118,15 @@ exports.deleteChild = async (parentId, childId) => {
         return { error: error.message || "Erreur lors de la suppression de l'enfant." };
     }
 };
+exports.setChildAvatar = async (childId, avatarPath) => {
+    try {
+      const child = await User.findByPk(childId);
+      if (!child || child.role_id !== 8) return { error: "Enfant non trouvé" };
+  
+      await child.update({ avatar: avatarPath });
+      return { avatar: avatarPath };
+    } catch (error) {
+      console.error("❌ Error updating child avatar:", error.message);
+      return { error: "Erreur lors de la mise à jour de l'avatar" };
+    }
+  };

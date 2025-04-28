@@ -23,6 +23,7 @@ const Favorite = require("./Favorite")(sequelize, Sequelize);
 const Order = require('./Order')(sequelize, Sequelize.DataTypes);
 const OrderItem = require('./OrderItem')(sequelize, Sequelize.DataTypes);
 const Cart = require("./Cart")(sequelize, Sequelize.DataTypes);
+const WebinarTranslation = require("./WebinarTranslation");
 
 // 🔹 Regrouper les modèles pour relations croisées
 const db = {
@@ -49,6 +50,7 @@ const db = {
   Order,
   OrderItem,
   Cart,
+  WebinarTranslation,
 };
 
 // ▶️ Définir toutes les relations entre modèles avec commentaires explicatifs
@@ -58,7 +60,9 @@ User.hasMany(Webinar, { foreignKey: "teacher_id", as: "webinars" });
 User.hasMany(Webinar, { foreignKey: "teacher_id", as: "videos" });
 User.hasMany(Webinar, { foreignKey: "teacher_id", as: "teacher" });
 
-
+// Relations du nouveau modèle
+Webinar.hasMany(WebinarTranslation, { foreignKey: 'webinar_id', as: 'translations' });
+WebinarTranslation.belongsTo(Webinar, { foreignKey: 'webinar_id', as: 'webinar' });
 Webinar.hasMany(WebinarChapter, { foreignKey: "webinar_id", as: "chapters" }); 
 WebinarChapter.belongsTo(Webinar, { foreignKey: "webinar_id", as: "webinar" });
 
@@ -79,6 +83,14 @@ SchoolLevel.hasMany(Manuel, { foreignKey: "level_id" });
 // 🔔 Notifications et leurs statuts
 Notification.hasMany(NotificationStatus, { foreignKey: 'notification_id', as: 'statuses', onDelete: 'CASCADE' });
 NotificationStatus.belongsTo(Notification, { foreignKey: 'notification_id', as: 'notification', onDelete: 'CASCADE' });
+// 🔔 Notifications liées aux utilisateurs
+Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
+// 🔵 Notification envoyée par un autre utilisateur
+Notification.belongsTo(User, { foreignKey: 'sender_id', as: 'sender_user' });
+User.hasMany(Notification, { foreignKey: 'sender_id', as: 'sent_notifications' });
+
+
 
 // 🎥 Manuel contient des vidéos
 Manuel.hasMany(Video, { foreignKey: "manuel_id", as: "videos" });

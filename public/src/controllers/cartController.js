@@ -1,14 +1,14 @@
 const cartService = require("../services/cartService");
 
 exports.addToCart = async (req, res) => {
-    try {
-      const item = await cartService.addToCart(req.user.id, req.body);
-      res.status(201).json({ message: "Ajouté au panier", item });
-    } catch (err) {
-      console.error("❌ Erreur dans CartController addToCart:", err.message);
-      res.status(400).json({ message: err.message || "Erreur lors de l'ajout au panier" });
-    }
-  };
+  try {
+    const item = await cartService.addToCart(req.user.id, req.body);
+    res.status(201).json({ message: "Ajouté au panier", item });
+  } catch (err) {
+    console.error("❌ Erreur dans CartController addToCart:", err.message);
+    res.status(400).json({ message: err.message || "Erreur lors de l'ajout au panier" });
+  }
+};
 
 exports.getCart = async (req, res) => {
   try {

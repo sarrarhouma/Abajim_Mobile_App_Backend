@@ -42,6 +42,30 @@ const authenticateToken = async (req, res, next) => {
     return res.status(401).json({ error: "Token invalide ou expiré." });
   }
 };
+const authenticateWithFullUser = async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) return res.status(403).json({ error: "Token manquant" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findByPk(decoded.id); // ou `User.findOne(...)`
+
+    if (!user) return res.status(404).json({ error: "Utilisateur non trouvé." });
+
+    req.user = {
+      id: user.id,
+      role_id: user.role_id,
+      full_name: user.full_name,
+      level_id: user.level_id,
+      phone_number: user.phone_number,
+      address: user.address,
+    };
+
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Token invalide ou expiré." });
+  }
+};
 
 module.exports = authenticateToken;
 

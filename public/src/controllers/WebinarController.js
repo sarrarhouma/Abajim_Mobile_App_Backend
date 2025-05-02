@@ -1,11 +1,11 @@
 const WebinarService = require("../services/WebinarService");
 
 const WebinarController = {
-  
   // ✅ Récupérer tous les webinars (avec query locale optionnel)
   async getAllWebinars(req, res) {
     try {
-      const webinars = await WebinarService.getAll();
+      const userId = req.user?.id;
+      const webinars = await WebinarService.getAll(userId);
       res.json(webinars);
     } catch (error) {
       console.error("❌ Erreur serveur getAllWebinars:", error);
@@ -16,7 +16,8 @@ const WebinarController = {
   // ✅ Récupérer un webinar par ID (avec query locale optionnel)
   async getWebinarById(req, res) {
     try {
-      const webinar = await WebinarService.getById(req.params.id);
+      const userId = req.user?.id;
+      const webinar = await WebinarService.getById(req.params.id, userId);
       if (!webinar) {
         return res.status(404).json({ error: "Webinar non trouvé" });
       }
@@ -31,7 +32,8 @@ const WebinarController = {
   async getWebinarsByLevel(req, res) {
     try {
       const levelId = req.params.levelId;
-      const webinars = await WebinarService.getByLevelId(levelId);
+      const userId = req.user?.id;
+      const webinars = await WebinarService.getByLevelId(levelId, userId);
       res.json(webinars);
     } catch (error) {
       console.error("❌ Erreur serveur getWebinarsByLevel:", error);
@@ -43,7 +45,8 @@ const WebinarController = {
   async searchWebinars(req, res) {
     try {
       const { levelId, keyword } = req.params;
-      const webinars = await WebinarService.searchByKeyword(levelId, keyword);
+      const userId = req.user?.id;
+      const webinars = await WebinarService.searchByKeyword(levelId, keyword, userId);
       if (!webinars || webinars.length === 0) {
         return res.status(404).json({ error: "Aucun webinaire trouvé" });
       }
@@ -53,7 +56,6 @@ const WebinarController = {
       res.status(500).json({ error: "Erreur serveur" });
     }
   },
-
 };
 
 module.exports = WebinarController;

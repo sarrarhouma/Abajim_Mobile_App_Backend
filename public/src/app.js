@@ -21,6 +21,7 @@ const cartRoutes = require("./routes/cart");
 const subscriptionRoutes = require("./routes/subscription");
 const checkoutRoutes = require("./routes/checkout");
 const user = require("./routes/user");
+const quizRoutes = require("./routes/quizRoutes");
 dotenv.config();
 
 const app = express();
@@ -61,6 +62,10 @@ app.use("/api/subscription", subscriptionRoutes);
 // ✅ Add the Checkout routes
 app.use("/api/checkout", checkoutRoutes); 
 app.use("/api/avatar", user); 
+// quizz routes 
+app.use("/api/quizzes", quizRoutes);
+
+
 // ✅ Fix: Correct the static path to serve `/avatars`
 const imagesPath = path.join(__dirname, "public/images");
 

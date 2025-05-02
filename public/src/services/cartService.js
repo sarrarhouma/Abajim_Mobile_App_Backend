@@ -6,10 +6,10 @@ const User = db.User;
 const WebinarChapter = db.WebinarChapter;
 const File = db.File;
 const FileTranslation = db.FileTranslation;
+const WebinarTranslation = db.WebinarTranslation;
 const ReserveMeeting = db.ReserveMeeting;
 
 const addToCart = async (userId, payload) => {
-  // 🔎 Valider l'existence de la réservation
   if (payload.reserve_meeting_id) {
     const reservation = await ReserveMeeting.findByPk(payload.reserve_meeting_id);
     if (!reservation) {
@@ -17,7 +17,6 @@ const addToCart = async (userId, payload) => {
     }
   }
 
-  // ✅ Créer l’entrée dans le panier
   return await Cart.create({
     creator_id: userId,
     webinar_id: payload.webinar_id || null,
@@ -37,9 +36,21 @@ const getUserCart = async (userId) => {
     order: [['created_at', 'DESC']],
     include: [
       {
+        model: User,
+        as: "creator",  // 🔥 C'est ça qui va te donner le full_name et level_id
+        attributes: ["id", "full_name", "level_id"]
+      },
+      {
         model: Webinar,
         as: "webinar",
         include: [
+          {
+            model: WebinarTranslation,
+            as: "translations",
+            where: { locale: "ar" },
+            required: false,
+            attributes: ["title"],
+          },
           {
             model: User,
             as: "teacher",
@@ -80,6 +91,7 @@ const getUserCart = async (userId) => {
     ]
   });
 };
+
 
 const removeCartItem = async (itemId, userId) => {
   return await Cart.destroy({

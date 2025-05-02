@@ -1,8 +1,10 @@
-const { Notification, NotificationStatus, FollowTeacher, User } = require('../models');
+const { Notification, NotificationStatus, FollowTeacher, User, MeetingTime, ReserveMeeting } = require('../models');
+const { Op } = require("sequelize");
 
 module.exports = {
   async sendNotification({ user_id, title, message, data = {}, sender_id = null }) {
-    const created_at = Date.now();
+    const created_at = Math.floor(Date.now() / 1000); // ✅ timestamp en secondes
+
     const notification = await Notification.create({
       user_id,
       sender_id,
@@ -37,16 +39,18 @@ module.exports = {
       where: { user_id, notification_id }
     });
 
+    const seen_at = Math.floor(Date.now() / 1000); // ✅ timestamp en secondes
+
     if (existing) {
       return await NotificationStatus.update(
-        { seen_at: Date.now() },
+        { seen_at },
         { where: { user_id, notification_id } }
       );
     } else {
       return await NotificationStatus.create({
         user_id,
         notification_id,
-        seen_at: Date.now()
+        seen_at
       });
     }
   },
@@ -56,7 +60,6 @@ module.exports = {
     return await Notification.destroy({ where: { id: notification_id, user_id } });
   },
 
-  // 🔔 Envoyer une notif aux abonnés d'un professeur
   async sendNewMeetingNotification(teacherId, meetingTitle) {
     const followers = await FollowTeacher.findAll({ where: { teacher_id: teacherId } });
 
@@ -70,7 +73,6 @@ module.exports = {
     }
   },
 
-  // 🔔 Envoyer une notif pour nouveau webinar
   async sendNewWebinarNotification(teacherId, webinarTitle) {
     const followers = await FollowTeacher.findAll({ where: { teacher_id: teacherId } });
 
@@ -84,7 +86,6 @@ module.exports = {
     }
   },
 
-  // 🔔 Notifier d'un nouveau pack
   async sendNewPackNotification(userId, packName) {
     await this.sendNotification({
       user_id: userId,
@@ -94,18 +95,21 @@ module.exports = {
     });
   },
 
-  // 🔔 Meetings qui commencent dans 10 minutes
   async sendMeetingStartingSoonNotifications() {
-    const now = Date.now();
-    const tenMinutesLater = now + 10 * 60 * 1000;
+    const now = Math.floor(Date.now() / 1000);
+    const tenMinutesLater = now + 10 * 60;
 
     const sessions = await MeetingTime.findAll({
       where: {
         meet_date: {
-          [Op.between]: [Math.floor(now / 1000), Math.floor(tenMinutesLater / 1000)]
+          [Op.between]: [now, tenMinutesLater]
         }
       },
-      include: [{ model: ReserveMeeting, as: 'reservations', include: [{ model: User, as: 'user' }] }]
+      include: [{
+        model: ReserveMeeting,
+        as: 'reservations',
+        include: [{ model: User, as: 'user' }]
+      }]
     });
 
     for (const session of sessions) {

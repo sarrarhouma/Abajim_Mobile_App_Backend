@@ -1,8 +1,8 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { validateRegistration } = require('../config/middleware/validationMiddleware');
-const authenticateToken = require('../config/middleware/authMiddleware'); // ✅ Fix Import
-const { sendOTP, verifyOTP, resetPassword, switchChildSession } = require('../controllers/authController'); // ✅ Fix Import
+const authenticateToken = require('../config/middleware/authMiddleware'); 
+const { sendOTP, verifyOTP, resetPassword, switchChildSession } = require('../controllers/authController'); 
 
 const router = express.Router();
 

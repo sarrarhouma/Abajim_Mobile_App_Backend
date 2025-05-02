@@ -1,23 +1,44 @@
 const { Op } = require("sequelize");
-const Webinar = require("../models/Webinar");
-const User = require("../models/User");
-const WebinarChapter = require("../models/WebinarChapter");
-const File = require("../models/File");
-const FileTranslation = require("../models/FileTranslation");
-const WebinarTranslation = require("../models/WebinarTranslation");
-const NotificationService = require('./NotificationService');
+const {
+  Webinar,
+  WebinarTranslation,
+  WebinarChapter,
+  File,
+  FileTranslation,
+  User,
+  Order,
+  OrderItem,
+} = require("../models");
+
+// 🔐 Vérifie si un utilisateur a accès au webinaire
+async function isAccessible(webinar, userId) {
+  if (!webinar.price || webinar.price === 0) return true;
+  if (!userId) return false;
+
+  const paidOrder = await Order.findOne({
+    where: { creator_id: userId, status: "paid" },
+    include: [
+      {
+        model: OrderItem,
+        as: "items",
+        where: { webinar_id: webinar.id },
+      },
+    ],
+  });
+
+  return !!paidOrder;
+}
 
 const WebinarService = {
-  // ✅ Récupérer un webinar par ID avec tous les détails
-  async getById(id) {
-    return await Webinar.findByPk(id, {
+  async getById(id, userId) {
+    const webinar = await Webinar.findByPk(id, {
       include: [
         {
           model: WebinarTranslation,
           as: "translations",
           where: { locale: "ar" },
           required: false,
-          attributes: ["title"]
+          attributes: ["title"],
         },
         {
           model: User,
@@ -37,39 +58,47 @@ const WebinarService = {
                   as: "translations",
                   where: { locale: "ar" },
                   required: false,
-                  attributes: ["title"]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  attributes: ["title"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
+
+    if (!webinar) return null;
+    webinar.dataValues.isAccessible = await isAccessible(webinar, userId);
+    return webinar;
   },
 
-  // ✅ Tous les webinars avec prof
-  async getAll() {
-    return await Webinar.findAll({
+  async getAll(userId) {
+    const webinars = await Webinar.findAll({
       include: [
         {
           model: WebinarTranslation,
           as: "translations",
           where: { locale: "ar" },
           required: false,
-          attributes: ["title"]
+          attributes: ["title"],
         },
         {
           model: User,
           as: "teacher",
-          attributes: ["id", "full_name", "avatar", "bio"]
-        }
-      ]
+          attributes: ["id", "full_name", "avatar", "bio"],
+        },
+      ],
     });
+
+    for (const webinar of webinars) {
+      webinar.dataValues.isAccessible = await isAccessible(webinar, userId);
+    }
+
+    return webinars;
   },
 
-  // ✅ Webinars par niveau
-  async getByLevelId(levelId) {
-    return await Webinar.findAll({
+  async getByLevelId(levelId, userId) {
+    const webinars = await Webinar.findAll({
       where: { level_id: levelId },
       include: [
         {
@@ -77,12 +106,12 @@ const WebinarService = {
           as: "translations",
           where: { locale: "ar" },
           required: false,
-          attributes: ["title"]
+          attributes: ["title"],
         },
         {
           model: User,
           as: "teacher",
-          attributes: ["id", "full_name", "avatar", "bio"]
+          attributes: ["id", "full_name", "avatar", "bio"],
         },
         {
           model: WebinarChapter,
@@ -97,26 +126,31 @@ const WebinarService = {
                   as: "translations",
                   where: { locale: "ar" },
                   required: false,
-                  attributes: ["title"]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  attributes: ["title"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
+
+    for (const webinar of webinars) {
+      webinar.dataValues.isAccessible = await isAccessible(webinar, userId);
+    }
+
+    return webinars;
   },
 
-  // ✅ Recherche par title (webinarTranslations), slug ou nom du prof
-  async searchByKeyword(levelId, keyword) {
-    return await Webinar.findAll({
+  async searchByKeyword(levelId, keyword, userId) {
+    const webinars = await Webinar.findAll({
       where: {
         level_id: levelId,
         [Op.or]: [
           { slug: { [Op.like]: `%${keyword}%` } },
-          { '$teacher.full_name$': { [Op.like]: `%${keyword}%` } },
-          { '$translations.title$': { [Op.like]: `%${keyword}%` } },
-        ]
+          { "$teacher.full_name$": { [Op.like]: `%${keyword}%` } },
+          { "$translations.title$": { [Op.like]: `%${keyword}%` } },
+        ],
       },
       include: [
         {
@@ -124,42 +158,22 @@ const WebinarService = {
           as: "translations",
           where: { locale: "ar" },
           required: false,
-          attributes: ["title"]
+          attributes: ["title"],
         },
         {
           model: User,
           as: "teacher",
-          attributes: ["id", "full_name", "avatar", "bio"]
-        }
-      ]
+          attributes: ["id", "full_name", "avatar", "bio"],
+        },
+      ],
     });
+
+    for (const webinar of webinars) {
+      webinar.dataValues.isAccessible = await isAccessible(webinar, userId);
+    }
+
+    return webinars;
   },
 };
-// Lors de la création d'un nouveau webinar
-async function notifyNewWebinar(webinar) {
-  const teacherId = webinar.teacher_id;
-
-  // 🧠 Trouver les parents abonnés à ce prof
-  const subscribers = await User.findAll({
-    where: { role_id: 3 }, // 👨‍👩‍👧‍👦 Les parents
-    include: [
-      {
-        model: Favorite,
-        as: "favorites",
-        where: { webinar_id: webinar.id },
-        required: false,
-      }
-    ]
-  });
-
-  for (const parent of subscribers) {
-    await NotificationService.sendNotification({
-      user_id: parent.id,
-      title: "📚 جديد : دورة مباشرة متاحة",
-      message: `تم نشر دورة جديدة من قبل ${webinar.teacher.full_name}.`,
-      data: { webinarId: webinar.id },
-    });
-  }
-}
 
 module.exports = WebinarService;

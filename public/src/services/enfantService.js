@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const SchoolLevel = require("../models/SchoolLevel");
-
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key";
 const garconImages = [
     "/boy1.jpeg",
     "/boy2.jpeg",
@@ -37,7 +38,27 @@ exports.getChildrenByParent = async (parentId) => {
         return { error: "Erreur lors de la récupération des enfants." };
     }
 };
+exports.getChildByParent = async (parentId) => {
+    try {
+        console.log(`📌 Fetching child for parentId: ${parentId}`);
 
+        const enfants = await User.findOne({
+            where: { organ_id: parentId, role_id: 8 }, // ✅ Get only children (role_id = 8)
+            attributes: ["id", "full_name", "role_id", "level_id", "avatar", "created_at", "sexe"]
+        });
+
+        // ✅ Ensure correct avatar URLs
+        // const updatedChildren = enfants.map(child => ({
+        //     ...child.dataValues,
+        //     avatar: child.avatar.startsWith("http") ? child.avatar : `${child.avatar}`
+        // }));
+
+        return enfants;
+    } catch (error) {
+        console.error("❌ Error fetching child:", error.message);
+        return { error: "Erreur lors de la récupération de l'enfant." };
+    }
+};
 // ✅ **Create a new child**
 exports.createChild = async (parent, data) => {
     try {
@@ -72,10 +93,15 @@ exports.createChild = async (parent, data) => {
             avatar: fullAvatarURL,
             created_at: new Date(),
             verified: 1,
-            language: "AR"
+            language: "AR",
+      
         });
-
-        return { user: newChild };
+        const token = jwt.sign(
+            { id: newChild.id, role_id: newChild.role_id },
+            SECRET_KEY,
+            { expiresIn: "6480h" }
+          );
+        return { user: newChild ,token};
     } catch (error) {
         console.error("❌ Error creating child:", error.message);
         return { error: error.message || "Erreur lors de la création de l'enfant." };

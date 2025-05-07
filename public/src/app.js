@@ -22,6 +22,10 @@ const subscriptionRoutes = require("./routes/subscription");
 const checkoutRoutes = require("./routes/checkout");
 const user = require("./routes/user");
 const quizRoutes = require("./routes/quizRoutes");
+// for teacher APIs
+const teacherAuthRoutes = require('./routes/teachers/teacherRoutes.js');
+
+
 dotenv.config();
 
 const app = express();
@@ -64,6 +68,10 @@ app.use("/api/checkout", checkoutRoutes);
 app.use("/api/avatar", user); 
 // quizz routes 
 app.use("/api/quizzes", quizRoutes);
+
+
+// Add teacher routes ( Teacher inetrafce part)
+app.use('/api/teachers', teacherAuthRoutes);
 
 
 // ✅ Fix: Correct the static path to serve `/avatars`

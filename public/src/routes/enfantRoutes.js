@@ -23,6 +23,8 @@ const storage = multer.diskStorage({
 router.get("/", authenticateToken, enfantController.getChildrenByParent);
 // ✅ Get all children by a specific parent ID (For Admins)
 router.get("/parent/:id", authenticateToken, enfantController.getChildrenByParentId);
+// ✅ Get all child by a specific parent ID (For Admins)
+router.get("/first-child/:id", authenticateToken, enfantController.getChildByParentId);
 // ✅ Add a new child
 router.post("/add", authenticateToken, enfantController.addChild);
 

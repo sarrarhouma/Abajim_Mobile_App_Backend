@@ -35,11 +35,13 @@ const QuizQuestionTranslation = require("./QuizQuestionTranslation");
 const QuizAnswer = require("./QuizAnswer");
 const QuizAnswerTranslation = require("./QuizAnswerTranslation");
 const QuizResult = require("./QuizResult");
+const Likes =  require("./Likes");
 
 // Teacher related
 const UserLevel = require("./UserLevel");
 const UserMatiere = require("./UserMatiere");
 const Follow = require("./Follow");
+const Like = require("./Likes");
 
 // 🧠 MODELS REGISTER
 const db = {
@@ -79,6 +81,7 @@ const db = {
   UserLevel,
   UserMatiere,
   Follow,
+  Like,
 };
 
 //
@@ -176,8 +179,8 @@ OrderItem.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' });
 Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
-PaymentProof.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
-Order.hasMany(PaymentProof, { foreignKey: 'order_id', as: 'payment_proofs' });
+// PaymentProof.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
+// Order.hasMany(PaymentProof, { foreignKey: 'order_id', as: 'payment_proofs' });
 
 // ✅ QUIZ Relations
 Quiz.hasMany(QuizTranslation, { foreignKey: 'quiz_id', as: 'translations' });
@@ -205,5 +208,15 @@ User.hasMany(Follow, { foreignKey: "user_id", as: "followers" });
 Follow.belongsTo(User, { foreignKey: "user_id", as: "teacher" });
 Follow.belongsTo(User, { foreignKey: "follower", as: "follower_user" });
 User.hasMany(Follow, { foreignKey: "follower", as: "followings" });
+
+// ✅ Video -> Likes
+Video.hasMany(Like, { foreignKey: 'video_id', as: 'likes_list' });
+Like.belongsTo(Video, { foreignKey: 'video_id', as: 'video' });
+
+// ✅ Like -> User
+Like.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(Like, { foreignKey: 'user_id', as: 'likes' });
+
+
 
 module.exports = db;

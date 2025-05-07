@@ -1,6 +1,8 @@
 const subscriptionService = require("../services/subscriptionService");
 const db = require("../models");
 const User = db.User;
+const { Order, OrderItem, CardReservation, PaymentProof } = require("../models");
+
 
 exports.subscribe = async (req, res) => {
   try {
@@ -76,5 +78,58 @@ exports.subscribe = async (req, res) => {
   } catch (error) {
     console.error("❌ Erreur lors de la souscription :", error);
     return res.status(500).json({ message: "Erreur serveur lors de la souscription." });
+  }
+};
+exports.checkChildSubscription = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+    const { childId } = req.params;
+
+    // 🔍 Vérifier si abonnement existe dans Order pour ce parent
+    const hasActiveSubscription = await Order.findOne({
+      where: {
+        user_id: parentId,
+        status: "pending",  // ✅ Fixed
+      }
+    });
+
+    // 🔍 Vérifier si carte reservée pour cet enfant
+    const cardReservation = await CardReservation.findOne({
+      where: {
+        enfant_id: childId
+      },
+      order: [['created_at', 'DESC']]
+    });
+
+    // 🔍 Vérifier si virement bancaire pour cet enfant
+    const paymentProof = await PaymentProof.findOne({
+      where: {
+        user_id: childId
+      },
+      order: [['created_at', 'DESC']]
+    });
+
+// ✅ Calculer subscription_active proprement
+let subscription_active = false;
+
+if (cardReservation && cardReservation.status === "approved") {
+  subscription_active = true;
+} else if (paymentProof && paymentProof.status === "approved") {
+  subscription_active = true;
+}
+
+res.status(200).json({
+  child_id: childId,
+  subscription_active,
+  card_ordered: !!cardReservation,
+  card_status: cardReservation ? cardReservation.status : null,
+  bank_transfer: !!paymentProof,
+  parent_transfer_status: paymentProof ? paymentProof.status : null
+});
+
+
+  } catch (error) {
+    console.error("❌ Erreur lors de la vérification d’abonnement enfant :", error);
+    res.status(500).json({ message: "Erreur serveur." });
   }
 };

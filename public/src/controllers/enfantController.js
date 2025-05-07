@@ -32,6 +32,22 @@ exports.getChildrenByParentId = async (req, res) => {
       return res.status(500).json({ error: "Erreur interne du serveur." });
   }
 };
+// ✅ Get child by a specific `parent_id` (Used for Admins or Debugging)
+exports.getChildByParentId = async (req, res) => {
+    try {
+        const { id } = req.params;
+  
+        const enfants = await enfantService.getChildByParent(id);
+  
+        if (enfants.error) {
+            return res.status(400).json({ error: enfants.error });
+        }
+  
+        return res.status(200).json(enfants);
+    } catch (error) {
+        return res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+  };
 // ✅ **Add a new child**
 exports.addChild = async (req, res) => {
     try {
@@ -50,7 +66,8 @@ exports.addChild = async (req, res) => {
 
         return res.status(201).json({
             message: "Enfant ajouté avec succès.",
-            enfant: newChild.user
+            enfant: newChild.user,
+            token: newChild.token
         });
     } catch (error) {
         return res.status(500).json({ error: error.message });

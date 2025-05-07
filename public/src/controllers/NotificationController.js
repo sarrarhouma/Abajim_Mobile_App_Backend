@@ -6,7 +6,23 @@ const NotificationController = {
   async sendToChild(req, res) {
     try {
       const { child_id, title, message, data, sender_id } = req.body;
+// Envoyer notification si carte en attente
+if (cardReservation && cardReservation.status === "waiting") {
+  await NotificationService.sendNotification({
+    user_id: child.id,
+    title: "بطاقة الاشتراك",
+    message: "بطاقتك قيد التوصيل، ستصلك قريباً."
+  });
+}
 
+// Envoyer notification si virement en attente
+if (paymentProof && paymentProof.status === "pending") {
+  await NotificationService.sendNotification({
+    user_id: child.id,
+    title: "التحويل البنكي",
+    message: "تحويلك البنكي قيد التحقق، سيتم تفعيل اشتراكك قريباً."
+  });
+}
       const notification = await NotificationService.sendNotification({
         user_id: child_id,
         title,

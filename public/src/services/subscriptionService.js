@@ -27,7 +27,7 @@ const subscribeToPack = async (
   });
 
   await OrderItem.create({
-    user_id: userId,
+    user_id: enfant_id,
     order_id: order.id,
     model_type: "App\\Models\\Subscribe",
     model_id: subscribeId,

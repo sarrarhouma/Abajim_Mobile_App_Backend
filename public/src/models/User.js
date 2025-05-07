@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db"); // Import the Sequelize instance
 
 const User = sequelize.define(
-  "users",
+  "User",  // ✅ C'est le nom du modèle → en PascalCase
   {
     id: {
       type: DataTypes.INTEGER,
@@ -21,12 +21,12 @@ const User = sequelize.define(
     },
     organ_id: {
       type: DataTypes.INTEGER,
-      allowNull: true, // 🔥 A child must always have a parent
-  }, 
-  sexe: {
-    type: DataTypes.ENUM("Garçon", "Fille"),
-    allowNull: true,
-  },   
+      allowNull: true,
+    },
+    sexe: {
+      type: DataTypes.ENUM("Garçon", "Fille"),
+      allowNull: true,
+    },
     mobile: {
       type: DataTypes.STRING(32),
     },
@@ -172,8 +172,9 @@ const User = sequelize.define(
     },
   },
   {
-    timestamps: false, // Disable automatic createdAt and updatedAt fields
-    freezeTableName: true, // Prevent Sequelize from pluralizing table names
+    timestamps: false,
+    freezeTableName: true,
+    tableName: "users",  // ✅ C'EST ICI que tu dis que la table s'appelle users
   }
 );
 

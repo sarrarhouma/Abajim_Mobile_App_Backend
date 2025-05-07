@@ -19,7 +19,9 @@ const upload = multer({ storage });
 
 // POST /api/subscription/subscribe
 router.post( "/subscribe", authenticateWithFullUser,upload.single("proof_file"),subscriptionController.subscribe);
-// get status of the card 
-//router.get("/status/:id", authenticateTokenChild, subscriptionController.getSubscriptionStatus);
+
+// ✅ Check if child has subscription
+router.get("/check-child-subscription/:childId", authenticateWithFullUser, subscriptionController.checkChildSubscription);
+
 
 module.exports = router;
